@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: gateway-service
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  cloud:
+    gateway:
+      default-filters:
+        - StripPrefix=1
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: resource-service
+          uri: lb://resource-service
+          predicates:
+            - Path=/resource/**
+  security:
+    user:
+      name: test
+      password: Test1$
+    oauth2:
+      client:
+        clientId: temp
+        clientSecret: temp
+        accessTokenUri: temp
+      resource:
+        jwt:
+          keyUri: temp
+          userInfoUri: temp
+  ignored: /resource/**,/auth/**,/**/health,/health
+
+server:
+  port: 9999
+  compression:
+    enabled: true
+    min-response-size: 5120
+    mime-types: application/json
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+    lease-expiration-duration-in-seconds: 2
+  client:
+#    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      default-zone: http://localhost:8761/eureka
